@@ -1,8 +1,10 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 import yt_dlp
 import os
 
 app = Flask(__name__)
+
+COOKIES_FILE = 'cookies.txt'
 
 @app.route('/stream/<video_id>')
 def get_stream(video_id):
@@ -11,7 +13,7 @@ def get_stream(video_id):
             'format': 'bestaudio/best',
             'quiet': True,
             'no_warnings': True,
-            'extract_flat': False,
+            'cookiefile': COOKIES_FILE if os.path.exists(COOKIES_FILE) else None,
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -20,7 +22,6 @@ def get_stream(video_id):
                 download=False
             )
             
-            # Get best audio format
             formats = info.get('formats', [])
             audio_formats = [
                 f for f in formats 
@@ -30,13 +31,11 @@ def get_stream(video_id):
             ]
             
             if not audio_formats:
-                # fallback to any format with audio
                 audio_formats = [f for f in formats if f.get('url')]
             
             if not audio_formats:
                 return jsonify({'error': 'No audio found'}), 404
             
-            # Sort by quality
             best = sorted(
                 audio_formats,
                 key=lambda f: f.get('abr') or f.get('tbr') or 0,
@@ -60,3 +59,5 @@ def health():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+
+
