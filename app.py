@@ -18,15 +18,16 @@ def get_stream(video_id):
     try:
         cookies_file = get_cookies_file()
         ydl_opts = {
-            'format': 'bestaudio/best',
-            'quiet': True,
-            'no_warnings': True,
-            'extractor_args': {
-                'youtube': {
-                    'player_client': ['ios'],  # iOS client bypasses bot detection
-                }
-            },
+    'format': 'bestaudio/best',
+    'quiet': True,
+    'no_warnings': True,
+    'extractor_args': {
+        'youtube': {
+            'player_client': ['mweb'],
         }
+    },
+    'socket_timeout': 10,
+}
         if cookies_file:
             ydl_opts['cookiefile'] = cookies_file
 
