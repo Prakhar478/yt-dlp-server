@@ -8,7 +8,6 @@ def get_cookies_file():
     cookies_content = os.environ.get('YOUTUBE_COOKIES')
     if not cookies_content:
         return None
-    # Write cookies to temp file
     path = '/tmp/cookies.txt'
     with open(path, 'w') as f:
         f.write(cookies_content)
@@ -22,6 +21,11 @@ def get_stream(video_id):
             'format': 'bestaudio/best',
             'quiet': True,
             'no_warnings': True,
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['ios'],  # iOS client bypasses bot detection
+                }
+            },
         }
         if cookies_file:
             ydl_opts['cookiefile'] = cookies_file
